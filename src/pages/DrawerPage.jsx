@@ -39,7 +39,7 @@ function DrawerPage({ name, qoshish, apiName, children }) {
                 },
               })
               .then((response) => {
-                message.success("Kitobxon qo'shildi");
+                message.success("Qo'shildi");
                 setIsOpenDrawer(false);
               })
               .catch((error) => {

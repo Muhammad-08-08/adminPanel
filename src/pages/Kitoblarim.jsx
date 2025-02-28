@@ -1,12 +1,13 @@
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
-import { Form, Input, message, Spin, Table } from "antd";
+import { Button, Form, Input, message, Select, Spin, Table } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import useMyStore from "../store/my-store";
 import DrawerPage from "./DrawerPage";
 
 function Kitoblarim() {
-  const [kitoblarim, setkitoblarim] = useState();
+  const [kitoblarim, setKitoblarim] = useState();
+  const [books, setBooks] = useState([]);
   const state = useMyStore();
   const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,8 +24,7 @@ function Kitoblarim() {
         },
       })
       .then((response) => {
-        setkitoblarim(response.data);
-        console.log(response.data);
+        setKitoblarim(response.data);
       })
       .catch((e) => {
         console.log(e);
@@ -32,28 +32,60 @@ function Kitoblarim() {
       });
   }, [currentPage]);
 
+  useEffect(() => {
+    axios
+      .get("https://library.softly.uz/api/books", {
+        headers: {
+          Authorization: `Bearer ${state.token}`,
+        },
+      })
+      .then((response) => {
+        setBooks(response.data.items);
+      })
+      .catch(() => {
+        message.error("Kitoblarni yuklashda xatolik");
+      });
+  }, []);
+
+  const handleAfterAdd = (newItem) => {
+    if (!books.find((b) => b.id === newItem.book.id)) {
+      setBooks((prevBooks) => [...prevBooks, newItem.book]);
+    }
+  };
+
   if (!kitoblarim) {
     return <Spin />;
   }
+
   return (
     <div>
       <DrawerPage
-        name="kitoblarim "
-        qoshish={"Kitobxon qo'shish"}
+        name="kitoblarim"
+        qoshish={"Kitob qo'shish"}
         apiName={"stocks"}
+        onAdd={handleAfterAdd}
       >
         <Form.Item
           label="Kitob"
-          name=""
+          name="bookId"
           rules={[
             {
               required: true,
             },
           ]}
         >
-          <Input />
+          <Select
+            options={books.map((item) => ({
+              value: item.id,
+              label: item.name,
+            }))}
+          />
         </Form.Item>
+        <Button type="primary" htmlType="submit">
+          Qo'shish
+        </Button>
       </DrawerPage>
+
       <Table
         columns={[
           {
@@ -61,44 +93,29 @@ function Kitoblarim() {
             dataIndex: "id",
           },
           {
-            title: "kitob",
+            title: "Kitob",
             dataIndex: "book",
-            render: (value) => {
-              return <p>{value?.name}</p>;
-            },
+            render: (value) => <p>{value?.name}</p>,
           },
           {
             title: "Bandlik",
             dataIndex: "busy",
-            render: (value) => {
-              return value ? (
+            render: (value) =>
+              value ? (
                 <CloseCircleTwoTone twoToneColor="#eb2f96" />
               ) : (
                 <CheckCircleTwoTone twoToneColor="#52c41a" />
-              );
-            },
+              ),
           },
           {
             title: "Yasalgan",
             dataIndex: "createdAt",
-            render: (value) => {
-              return new Date(value).toLocaleString("ru", {
+            render: (value) =>
+              new Date(value).toLocaleString("ru", {
                 month: "short",
                 day: "2-digit",
                 year: "numeric",
-              });
-            },
-          },
-          {
-            title: "Bandlik",
-            dataIndex: "busy",
-            render: (value) => {
-              return value ? (
-                <CloseCircleTwoTone twoToneColor="#eb2f96" />
-              ) : (
-                <CheckCircleTwoTone twoToneColor="#52c41a" />
-              );
-            },
+              }),
           },
         ]}
         dataSource={kitoblarim.items}
@@ -109,7 +126,6 @@ function Kitoblarim() {
           total: kitoblarim.totalCount,
         }}
         onChange={(pagination) => {
-          console.log(pagination);
           setCurrentPage(pagination.current);
         }}
       />
