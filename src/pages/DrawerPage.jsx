@@ -40,7 +40,7 @@ function DrawerPage({
         message.success(editItem ? "Tahrirlandi" : "Qo'shildi");
         setIsOpen(false);
         form.resetFields();
-        onAddOrUpdate(); // Listni yangilash
+        onAddOrUpdate();
       })
       .catch(() => message.error("Xatolik"))
       .finally(() => setLoading(false));
