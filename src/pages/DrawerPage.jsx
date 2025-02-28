@@ -1,11 +1,10 @@
-import { Button, Drawer, Form, Input, message, Radio, Spin } from "antd";
+import { Button, Drawer, Form, message, Spin } from "antd";
 import axios from "axios";
 import React, { useState } from "react";
 import useMyStore from "../store/my-store";
 
-function DrawerPage({ name, qoshish }) {
+function DrawerPage({ name, qoshish, apiName, children }) {
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
-  const [kitobxon, setKitobxon] = useState();
   const [loading, setLoading] = useState(false);
   const state = useMyStore();
   return (
@@ -34,13 +33,12 @@ function DrawerPage({ name, qoshish }) {
           onFinish={(values) => {
             setLoading(true);
             axios
-              .post("https://library.softly.uz/api/users", values, {
+              .post(`https://library.softly.uz/api/${apiName}`, values, {
                 headers: {
                   Authorization: `Bearer ${state.token}`,
                 },
               })
               .then((response) => {
-                setKitobxon(response.data);
                 message.success("Kitobxon qo'shildi");
                 setIsOpenDrawer(false);
               })
@@ -53,67 +51,7 @@ function DrawerPage({ name, qoshish }) {
               });
           }}
         >
-          <Form.Item
-            label="Ism"
-            name="firstName"
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Familya"
-            name="lastName"
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Telefon Raqam"
-            name="phone"
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Jinsi"
-            name="gender"
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-          >
-            <Radio.Group
-              block
-              options={[
-                {
-                  label: "Erkak",
-                  value: "male",
-                },
-                {
-                  label: "Ayol",
-                  value: "female",
-                },
-              ]}
-              optionType="button"
-              buttonStyle="solid"
-            />
-          </Form.Item>
-          <Button htmlType="submit" type="primary">
-            Qo'shish
-          </Button>
+          {children}
         </Form>
       </Drawer>
     </div>

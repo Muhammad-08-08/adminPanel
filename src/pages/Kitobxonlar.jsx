@@ -1,4 +1,4 @@
-import { Button, message, Spin, Table } from "antd";
+import { Button, Form, Input, message, Radio, Spin, Table } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import useMyStore from "../store/my-store";
@@ -36,7 +36,73 @@ function Kitobxonlar() {
   }
   return (
     <div>
-      <DrawerPage name="Kitobxonlar" qoshish={"Kitobxon qo'shish"} />
+      <DrawerPage
+        name="Kitobxonlar"
+        qoshish={"Kitobxon qo'shish"}
+        apiName={"users"}
+      >
+        <Form.Item
+          label="Ism"
+          name="firstName"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Familya"
+          name="lastName"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Telefon Raqam"
+          name="phone"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Jinsi"
+          name="gender"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Radio.Group
+            block
+            options={[
+              {
+                label: "Erkak",
+                value: "male",
+              },
+              {
+                label: "Ayol",
+                value: "female",
+              },
+            ]}
+            optionType="button"
+            buttonStyle="solid"
+          />
+        </Form.Item>
+        <Button htmlType="submit" type="primary">
+          Qo'shish
+        </Button>
+      </DrawerPage>
       <Table
         columns={[
           {

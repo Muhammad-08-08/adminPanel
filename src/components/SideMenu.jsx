@@ -1,5 +1,6 @@
 import {
   BookOutlined,
+  BookTwoTone,
   FolderAddOutlined,
   HomeOutlined,
   ProductOutlined,
@@ -50,6 +51,11 @@ function SideMenu({ collapsed }) {
             key: "/kitobxonlar",
             label: <Link to={"/kitobxonlar"}>Kitobxonlar</Link>,
             icon: <BookOutlined />,
+          },
+          {
+            key: "/kitoblarim",
+            label: <Link to={"/kitoblarim"}>kitoblarim</Link>,
+            icon: <BookTwoTone />,
           },
         ]}
       />
