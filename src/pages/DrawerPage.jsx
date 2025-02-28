@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import useMyStore from "../store/my-store";
 
-function DrawerPage() {
+function DrawerPage({ name, qoshish }) {
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [kitobxon, setKitobxon] = useState();
   const [loading, setLoading] = useState(false);
@@ -11,14 +11,14 @@ function DrawerPage() {
   return (
     <div>
       <div className="flex justify-between pl-2 pr-6 mb-4">
-        <h1 className="text-xl font-bold">Kitobxonlar</h1>
+        <h1 className="text-xl font-bold">{name}</h1>
         <Button
           onClick={() => {
             setIsOpenDrawer(true);
           }}
           type="primary"
         >
-          Kitobxon qo'shish
+          {qoshish}
         </Button>
       </div>
       <div>{loading && <Spin />}</div>
@@ -29,7 +29,6 @@ function DrawerPage() {
         }}
         destroyOnClose
       >
-        
         <Form
           layout="vertical"
           onFinish={(values) => {

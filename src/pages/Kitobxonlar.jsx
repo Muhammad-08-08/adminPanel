@@ -1,4 +1,4 @@
-import { message, Spin, Table } from "antd";
+import { Button, message, Spin, Table } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import useMyStore from "../store/my-store";
@@ -23,6 +23,7 @@ function Kitobxonlar() {
       })
       .then((response) => {
         setKitobxonlar(response.data);
+        console.log(response.data);
       })
       .catch((e) => {
         console.log(e);
@@ -35,7 +36,7 @@ function Kitobxonlar() {
   }
   return (
     <div>
-      <DrawerPage />
+      <DrawerPage name="Kitobxonlar" qoshish={"Kitobxon qo'shish"} />
       <Table
         columns={[
           {
@@ -45,6 +46,55 @@ function Kitobxonlar() {
           {
             title: "Ism",
             dataIndex: "firstName",
+          },
+          {
+            title: "Familya",
+            dataIndex: "lastName",
+          },
+          {
+            title: "Telefon",
+            dataIndex: "phone",
+          },
+          {
+            title: "Status",
+            dataIndex: "status",
+            render: (values) => {
+              return values === 1 ? (
+                <Button color="cyan" variant="filled">
+                  active
+                </Button>
+              ) : (
+                <Button color="danger" variant="outlined">
+                  block
+                </Button>
+              );
+            },
+          },
+          {
+            title: "Hisob",
+            dataIndex: "balance",
+          },
+          {
+            title: "Yasalgan",
+            dataIndex: "createdAt",
+            render: (value) => {
+              return new Date(value).toLocaleString("ru", {
+                month: "short",
+                day: "2-digit",
+                year: "numeric",
+              });
+            },
+          },
+          {
+            title: "Yangilangan",
+            dataIndex: "updatedAt",
+            render: () => {
+              return new Date().toLocaleString("ru", {
+                month: "short",
+                day: "2-digit",
+                year: "numeric",
+              });
+            },
           },
         ]}
         dataSource={kitobxonlar.items}

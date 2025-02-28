@@ -35,6 +35,7 @@ function Ijaralar() {
   }
   return (
     <div>
+      <DrawerPage name={"Ijaralar"} qoshish={"ijarachi qo'shish"} />
       <Table
         columns={[
           {
