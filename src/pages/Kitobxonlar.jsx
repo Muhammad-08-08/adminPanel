@@ -9,171 +9,118 @@ function Kitobxonlar() {
   const state = useMyStore();
   const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedUser, setSelectedUser] = useState(null); // Edit uchun
 
-  useEffect(() => {
+  const fetchUsers = () => {
     axios
       .get("https://library.softly.uz/api/users", {
-        params: {
-          size: pageSize,
-          page: currentPage,
-        },
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-        },
+        params: { size: pageSize, page: currentPage },
+        headers: { Authorization: `Bearer ${state.token}` },
       })
-      .then((response) => {
-        setKitobxonlar(response.data);
-        console.log(response.data);
-      })
-      .catch((e) => {
-        console.log(e);
-        message.error("Xatolik");
-      });
-  }, [currentPage]);
+      .then((response) => setKitobxonlar(response.data))
+      .catch(() => message.error("Xatolik"));
+  };
+
+  useEffect(fetchUsers, [currentPage]);
 
   if (!kitobxonlar) {
     return <Spin />;
   }
+
   return (
     <div>
       <DrawerPage
         name="Kitobxonlar"
-        qoshish={"Kitobxon qo'shish"}
-        apiName={"users"}
+        qoshish="Kitobxon qo'shish"
+        apiName="users"
+        editItem={selectedUser} // Edit item
+        onAddOrUpdate={fetchUsers} // Qo‘shilganda yoki tahrirlanganda refresh
       >
-        <Form.Item
-          label="Ism"
-          name="firstName"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
+        <Form.Item label="Ism" name="firstName" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
-        <Form.Item
-          label="Familya"
-          name="lastName"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
+        <Form.Item label="Familya" name="lastName" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
         <Form.Item
           label="Telefon Raqam"
           name="phone"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
+          rules={[{ required: true }]}
         >
           <Input />
         </Form.Item>
-        <Form.Item
-          label="Jinsi"
-          name="gender"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
+        <Form.Item label="Jinsi" name="gender" rules={[{ required: true }]}>
           <Radio.Group
-            block
             options={[
-              {
-                label: "Erkak",
-                value: "male",
-              },
-              {
-                label: "Ayol",
-                value: "female",
-              },
+              { label: "Erkak", value: "male" },
+              { label: "Ayol", value: "female" },
             ]}
             optionType="button"
             buttonStyle="solid"
           />
         </Form.Item>
         <Button htmlType="submit" type="primary">
-          Qo'shish
+          Saqlash
         </Button>
       </DrawerPage>
+
       <Table
         columns={[
           {
             title: "ID",
             dataIndex: "id",
+            render: (id, record) => (
+              <div
+                onClick={() => setSelectedUser(record)} // Edit rejimga o‘tish
+                className="text-blue-600 cursor-pointer"
+              >
+                {id}
+              </div>
+            ),
           },
-          {
-            title: "Ism",
-            dataIndex: "firstName",
-          },
-          {
-            title: "Familya",
-            dataIndex: "lastName",
-          },
-          {
-            title: "Telefon",
-            dataIndex: "phone",
-          },
+          { title: "Ism", dataIndex: "firstName" },
+          { title: "Familya", dataIndex: "lastName" },
+          { title: "Telefon", dataIndex: "phone" },
           {
             title: "Status",
             dataIndex: "status",
-            render: (values) => {
-              return values === 1 ? (
-                <Button color="cyan" variant="filled">
-                  active
-                </Button>
+            render: (value) =>
+              value === 1 ? (
+                <Button color="cyan">active</Button>
               ) : (
-                <Button color="danger" variant="outlined">
-                  block
-                </Button>
-              );
-            },
+                <Button danger>block</Button>
+              ),
           },
-          {
-            title: "Hisob",
-            dataIndex: "balance",
-          },
+          { title: "Hisob", dataIndex: "balance" },
           {
             title: "Yasalgan",
             dataIndex: "createdAt",
-            render: (value) => {
-              return new Date(value).toLocaleString("ru", {
+            render: (value) =>
+              new Date(value).toLocaleString("ru", {
                 month: "short",
                 day: "2-digit",
                 year: "numeric",
-              });
-            },
+              }),
           },
           {
             title: "Yangilangan",
             dataIndex: "updatedAt",
-            render: () => {
-              return new Date().toLocaleString("ru", {
+            render: (value) =>
+              new Date(value).toLocaleString("ru", {
                 month: "short",
                 day: "2-digit",
                 year: "numeric",
-              });
-            },
+              }),
           },
         ]}
         dataSource={kitobxonlar.items}
         rowKey="id"
         pagination={{
-          pageSize: pageSize,
+          pageSize,
           current: currentPage,
           total: kitobxonlar.totalCount,
         }}
-        onChange={(pagination) => {
-          console.log(pagination);
-          setCurrentPage(pagination.current);
-        }}
+        onChange={(pagination) => setCurrentPage(pagination.current)}
       />
     </div>
   );
