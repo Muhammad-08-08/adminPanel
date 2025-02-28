@@ -19,7 +19,7 @@ function DrawerPage({
   useEffect(() => {
     if (editItem) {
       form.setFieldsValue(editItem);
-      setIsOpen(true); // Edit rejimda avtomatik ochiladi
+      setIsOpen(true);
     }
   }, [editItem]);
 
