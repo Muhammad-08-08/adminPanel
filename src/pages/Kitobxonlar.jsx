@@ -9,19 +9,21 @@ function Kitobxonlar() {
   const state = useMyStore();
   const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedUser, setSelectedUser] = useState(null); // Edit uchun
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  const fetchUsers = () => {
+  const fetchUsers = () => {};
+
+  useEffect(() => {
     axios
       .get("https://library.softly.uz/api/users", {
         params: { size: pageSize, page: currentPage },
         headers: { Authorization: `Bearer ${state.token}` },
       })
-      .then((response) => setKitobxonlar(response.data))
+      .then((response) => {
+        setKitobxonlar(response.data), message.success("muvaffaqqiyatli");
+      })
       .catch(() => message.error("Xatolik"));
-  };
-
-  useEffect(fetchUsers, [currentPage]);
+  }, [currentPage]);
 
   if (!kitobxonlar) {
     return <Spin />;
@@ -33,8 +35,8 @@ function Kitobxonlar() {
         name="Kitobxonlar"
         qoshish="Kitobxon qo'shish"
         apiName="users"
-        editItem={selectedUser} // Edit item
-        onAddOrUpdate={fetchUsers} // Qo‘shilganda yoki tahrirlanganda refresh
+        editItem={selectedUser}
+        onAddOrUpdate={fetchUsers}
       >
         <Form.Item label="Ism" name="firstName" rules={[{ required: true }]}>
           <Input />
@@ -71,7 +73,7 @@ function Kitobxonlar() {
             dataIndex: "id",
             render: (id, record) => (
               <div
-                onClick={() => setSelectedUser(record)} // Edit rejimga o‘tish
+                onClick={() => setSelectedUser(record)}
                 className="text-blue-600 cursor-pointer"
               >
                 {id}
@@ -86,9 +88,13 @@ function Kitobxonlar() {
             dataIndex: "status",
             render: (value) =>
               value === 1 ? (
-                <Button color="cyan">active</Button>
+                <Button color="cyan" variant="filled">
+                  active
+                </Button>
               ) : (
-                <Button danger>block</Button>
+                <Button color="danger" variant="filled">
+                  block
+                </Button>
               ),
           },
           { title: "Hisob", dataIndex: "balance" },

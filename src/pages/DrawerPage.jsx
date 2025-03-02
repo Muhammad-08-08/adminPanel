@@ -55,7 +55,14 @@ function DrawerPage({
         </Button>
       </div>
       <Spin spinning={loading}>
-        <Drawer open={isOpen} onClose={() => setIsOpen(false)} destroyOnClose>
+        <Drawer
+          open={isOpen}
+          onClose={() => {
+            setIsOpen(false);
+            onAddOrUpdate();
+          }}
+          destroyOnClose
+        >
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
             {children}
           </Form>

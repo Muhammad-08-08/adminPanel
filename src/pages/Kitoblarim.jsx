@@ -11,6 +11,9 @@ function Kitoblarim() {
   const state = useMyStore();
   const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectUser, setSelectedUser] = useState();
+
+  const fetchUsers = () => {};
 
   useEffect(() => {
     axios
@@ -41,6 +44,7 @@ function Kitoblarim() {
       })
       .then((response) => {
         setBooks(response.data.items);
+        message.success("muvaffaqqiyatli")
       })
       .catch(() => {
         message.error("Kitoblarni yuklashda xatolik");
@@ -64,23 +68,45 @@ function Kitoblarim() {
         qoshish={"Kitob qo'shish"}
         apiName={"stocks"}
         onAdd={handleAfterAdd}
+        editItem={selectUser}
+        onAddOrUpdate={fetchUsers}
       >
-        <Form.Item
-          label="Kitob"
-          name="bookId"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
-          <Select
-            options={books.map((item) => ({
-              value: item.id,
-              label: item.name,
-            }))}
-          />
-        </Form.Item>
+        <div className="flex gap-2 w-full overflow-x-hidden">
+          <Form.Item
+            label="Kitob"
+            name="bookId"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+            className="w-[250px]"
+          >
+            <Select
+              options={books.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Kitob"
+            name="bookId"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+            className="w-24"
+          >
+            <Select
+              options={books.map((item) => ({
+                value: item.id,
+                label: item.id,
+              }))}
+            />
+          </Form.Item>
+        </div>
         <Button type="primary" htmlType="submit">
           Qo'shish
         </Button>
@@ -91,11 +117,23 @@ function Kitoblarim() {
           {
             title: "ID",
             dataIndex: "id",
+            render: (id, render) => {
+              return (
+                <div
+                  onClick={() => {
+                    setSelectedUser(render);
+                  }}
+                  className="text-blue-600 cursor-pointer"
+                >
+                  {id}
+                </div>
+              );
+            },
           },
           {
             title: "Kitob",
             dataIndex: "book",
-            render: (value) => <p>{value?.name}</p>,
+            render: (value) => <p>{value.name}</p>,
           },
           {
             title: "Bandlik",

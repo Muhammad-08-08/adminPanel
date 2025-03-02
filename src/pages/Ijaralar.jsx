@@ -22,7 +22,7 @@ function Ijaralar() {
       .then((response) => {
         console.log(response.data.items);
         setIjaralar(response.data.items);
-        message.success("Muvaffaqiyatli");
+        message.success("muvaffaqqiyatli");
       })
       .catch((e) => {
         console.log(e);
