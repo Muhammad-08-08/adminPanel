@@ -21,7 +21,6 @@ function Ijaralar() {
         },
       })
       .then((response) => {
-        console.log(response.data.items);
         setIjaralar(response.data.items);
         message.success("muvaffaqqiyatli");
       })
