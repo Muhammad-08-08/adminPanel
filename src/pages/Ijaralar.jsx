@@ -3,14 +3,15 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import useMyStore from "../store/my-store";
 import DrawerPage from "./DrawerPage";
+import api from "../api/Api";
 
 function Ijaralar() {
   const [ijaralar, setIjaralar] = useState();
   const state = useMyStore();
 
   useEffect(() => {
-    axios
-      .get("https://library.softly.uz/api/rents", {
+    api
+      .get("/api/rents", {
         params: {
           size: 20,
           page: 1,
