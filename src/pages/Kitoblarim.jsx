@@ -1,5 +1,5 @@
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
-import { Button, Form, Input, message, Select, Spin, Table } from "antd";
+import { Button, Form, message, Select, Spin, Table } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import useMyStore from "../store/my-store";
@@ -12,10 +12,10 @@ function Kitoblarim() {
   const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectUser, setSelectedUser] = useState();
+  const [loading, setLoading] = useState(false);
 
-  const fetchUsers = () => {};
-
-  useEffect(() => {
+  const fetchUsers = () => {
+    setLoading(true);
     axios
       .get("https://library.softly.uz/api/stocks", {
         params: {
@@ -32,10 +32,12 @@ function Kitoblarim() {
       .catch((e) => {
         console.log(e);
         message.error("Xatolik");
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  }, [currentPage]);
 
-  useEffect(() => {
+    // setLoading(true);
     axios
       .get("https://library.softly.uz/api/books", {
         headers: {
@@ -44,11 +46,19 @@ function Kitoblarim() {
       })
       .then((response) => {
         setBooks(response.data.items);
-        message.success("muvaffaqqiyatli")
       })
       .catch(() => {
         message.error("Kitoblarni yuklashda xatolik");
-      });
+      })
+      .finally(() => {});
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage]);
+
+  useEffect(() => {
+    fetchUsers();
   }, []);
 
   const handleAfterAdd = (newItem) => {
@@ -60,6 +70,13 @@ function Kitoblarim() {
   if (!kitoblarim) {
     return <Spin />;
   }
+  if (loading) {
+    return (
+      <div>
+        <Spin />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -69,7 +86,7 @@ function Kitoblarim() {
         apiName={"stocks"}
         onAdd={handleAfterAdd}
         editItem={selectUser}
-        onAddOrUpdate={fetchUsers}
+        fetchUsers={fetchUsers}
       >
         <div className="flex gap-2 w-full overflow-x-hidden">
           <Form.Item

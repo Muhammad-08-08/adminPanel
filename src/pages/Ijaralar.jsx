@@ -1,4 +1,4 @@
-import { Button, Checkbox, message, Switch, Table } from "antd";
+import { Form, Input, message, Switch, Table } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import useMyStore from "../store/my-store";
@@ -35,7 +35,18 @@ function Ijaralar() {
   }
   return (
     <div>
-      <DrawerPage name={"Ijaralar"} qoshish={"ijarachi qo'shish"} />
+      <DrawerPage name={"Ijaralar"} qoshish={"ijarachi qo'shish"}>
+        <Form.Item
+          label="Kitobxon"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+      </DrawerPage>
       <Table
         columns={[
           {

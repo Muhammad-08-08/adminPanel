@@ -8,8 +8,8 @@ function DrawerPage({
   qoshish,
   apiName,
   children,
-  onAddOrUpdate,
   editItem,
+  fetchUsers,
 }) {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -40,7 +40,7 @@ function DrawerPage({
         message.success(editItem ? "Tahrirlandi" : "Qo'shildi");
         setIsOpen(false);
         form.resetFields();
-        onAddOrUpdate();
+        fetchUsers();
       })
       .catch(() => message.error("Xatolik"))
       .finally(() => setLoading(false));
@@ -59,7 +59,6 @@ function DrawerPage({
           open={isOpen}
           onClose={() => {
             setIsOpen(false);
-            onAddOrUpdate();
           }}
           destroyOnClose
         >
