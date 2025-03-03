@@ -1,13 +1,11 @@
 import { Form, Input, message, Switch, Table } from "antd";
-import axios from "axios";
 import { useEffect, useState } from "react";
+import api from "../api/Api";
 import useMyStore from "../store/my-store";
 import DrawerPage from "./DrawerPage";
-import api from "../api/Api";
 
 function Ijaralar() {
   const [ijaralar, setIjaralar] = useState();
-  const state = useMyStore();
 
   useEffect(() => {
     api
@@ -15,9 +13,6 @@ function Ijaralar() {
         params: {
           size: 20,
           page: 1,
-        },
-        headers: {
-          authorization: "Bearer " + state.token,
         },
       })
       .then((response) => {
