@@ -11,7 +11,7 @@ function Kitoblarim() {
   const state = useMyStore();
   const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -22,7 +22,9 @@ function Kitoblarim() {
         params: { size: pageSize, page: currentPage },
         headers: { Authorization: `Bearer ${state.token}` },
       })
-      .then((response) => setKitoblarim(response.data))
+      .then((response) => {
+        setKitoblarim(response.data);
+      })
       .catch(() => message.error("Xatolik"))
       .finally(() => setLoading(false));
 
@@ -30,7 +32,10 @@ function Kitoblarim() {
       .get("https://library.softly.uz/api/books", {
         headers: { Authorization: `Bearer ${state.token}` },
       })
-      .then((response) => setBooks(response.data.items))
+      .then((response) => {
+        setBooks(response.data.items);
+        console.log(response.data.items);
+      })
       .catch(() => message.error("Kitoblarni yuklashda xatolik"));
   };
 
@@ -46,18 +51,23 @@ function Kitoblarim() {
         name="Kitoblarim"
         qoshish="Kitob qo'shish"
         apiName="stocks"
-        editItem={selectUser}
+        editItem={selectedUser}
         fetchUsers={fetchUsers}
         isOpen={isDrawerOpen}
         setIsOpen={setIsDrawerOpen}
       >
-        <Form.Item label="Kitob ID" name="bookId" rules={[{ required: true }]}>
+        <Form.Item
+          label="Kitob"
+          name="bookId"
+          rules={[{ required: true, message: "Iltimos, kitobni tanlang" }]}
+        >
           <Select
             options={books.map((b) => ({ value: b.id, label: b.name }))}
           />
         </Form.Item>
+
         <Button type="primary" htmlType="submit">
-          qo'shish
+          {selectedUser ? "Tahrirlash" : "Qo'shish"}
         </Button>
       </DrawerPage>
 
@@ -81,7 +91,16 @@ function Kitoblarim() {
           {
             title: "Kitob",
             dataIndex: "book",
-            render: (book) => <p>{book?.name}</p>,
+            render: (book, record) => (
+              <p
+                onClick={() => {
+                  setSelectedUser(record);
+                  setIsDrawerOpen(true);
+                }}
+              >
+                {book?.name}
+              </p>
+            ),
           },
           {
             title: "Bandlik",

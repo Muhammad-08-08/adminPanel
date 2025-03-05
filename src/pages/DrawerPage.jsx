@@ -8,10 +8,10 @@ function DrawerPage({
   qoshish,
   apiName,
   children,
-  onAddOrUpdate,
   editItem,
   isOpen,
   setIsOpen,
+  fetchUsers,
 }) {
   const [loading, setLoading] = useState(false);
   const state = useMyStore();
@@ -24,17 +24,25 @@ function DrawerPage({
     const method = editItem ? "put" : "post";
 
     axios({
-      method,
-      url,
+      method: method,
+      url: url,
       data: values,
       headers: { Authorization: `Bearer ${state.token}` },
     })
       .then(() => {
         message.success(editItem ? "Tahrirlandi" : "Qo'shildi");
         setIsOpen(false);
-        onAddOrUpdate();
+        fetchUsers();
       })
-      .catch(() => message.error("Xatolik"))
+      .catch((error) => {
+        if (error.response?.status === 403) {
+          message.error(
+            "Sizga bu amalni bajarish uchun ruxsat yo'q (403 Forbidden)"
+          );
+        } else {
+          message.error("Xatolik yuz berdi");
+        }
+      })
       .finally(() => setLoading(false));
   };
 
@@ -47,15 +55,9 @@ function DrawerPage({
         </Button>
       </div>
       <Spin spinning={loading}>
-        <Drawer
-          open={isOpen}
-          onClose={() => {
-            setIsOpen(false);
-          }}
-          destroyOnClose
-        >
+        <Drawer open={isOpen} onClose={() => setIsOpen(false)} destroyOnClose>
           <Form
-            initialValues={editItem}
+            initialValues={editItem ? { bookId: editItem.book?.id } : {}}
             layout="vertical"
             onFinish={handleSubmit}
           >
