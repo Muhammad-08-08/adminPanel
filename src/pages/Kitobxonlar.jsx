@@ -10,20 +10,19 @@ function Kitobxonlar() {
   const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const fetchUsers = () => {};
-
-  useEffect(() => {
+  const fetchUsers = () => {
     axios
       .get("https://library.softly.uz/api/users", {
         params: { size: pageSize, page: currentPage },
         headers: { Authorization: `Bearer ${state.token}` },
       })
-      .then((response) => {
-        setKitobxonlar(response.data), message.success("muvaffaqqiyatli");
-      })
+      .then((response) => setKitobxonlar(response.data))
       .catch(() => message.error("Xatolik"));
-  }, [currentPage]);
+  };
+
+  useEffect(fetchUsers, [currentPage]);
 
   if (!kitobxonlar) {
     return <Spin />;
@@ -37,6 +36,8 @@ function Kitobxonlar() {
         apiName="users"
         editItem={selectedUser}
         onAddOrUpdate={fetchUsers}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
       >
         <Form.Item label="Ism" name="firstName" rules={[{ required: true }]}>
           <Input />
@@ -73,7 +74,10 @@ function Kitobxonlar() {
             dataIndex: "id",
             render: (id, record) => (
               <div
-                onClick={() => setSelectedUser(record)}
+                onClick={() => {
+                  setSelectedUser(record);
+                  setIsOpen(true);
+                }}
                 className="text-blue-600 cursor-pointer"
               >
                 {id}
@@ -88,13 +92,9 @@ function Kitobxonlar() {
             dataIndex: "status",
             render: (value) =>
               value === 1 ? (
-                <Button color="cyan" variant="filled">
-                  active
-                </Button>
+                <Button color="cyan">active</Button>
               ) : (
-                <Button color="danger" variant="filled">
-                  block
-                </Button>
+                <Button danger>block</Button>
               ),
           },
           { title: "Hisob", dataIndex: "balance" },

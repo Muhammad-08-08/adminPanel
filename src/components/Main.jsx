@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router";
 import CategoriesPage from "../pages/CategoriesPage";
 import HomePage from "../pages/HomePage";
 import MahsulotlarPage from "../pages/MahsulotlarPage";
-import Ijaralar from "../pages/Ijaralar";
+import Ijaralar from "../pages/Ijaralar"
 import Kitobxonlar from "../pages/Kitobxonlar";
 import Kitoblarim from "../pages/Kitoblarim";
 

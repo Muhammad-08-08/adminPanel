@@ -11,121 +11,53 @@ function Kitoblarim() {
   const state = useMyStore();
   const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectUser, setSelectedUser] = useState();
+  const [selectUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const fetchUsers = () => {
     setLoading(true);
     axios
       .get("https://library.softly.uz/api/stocks", {
-        params: {
-          size: pageSize,
-          page: currentPage,
-        },
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-        },
+        params: { size: pageSize, page: currentPage },
+        headers: { Authorization: `Bearer ${state.token}` },
       })
-      .then((response) => {
-        setKitoblarim(response.data);
-      })
-      .catch((e) => {
-        console.log(e);
-        message.error("Xatolik");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .then((response) => setKitoblarim(response.data))
+      .catch(() => message.error("Xatolik"))
+      .finally(() => setLoading(false));
 
-    // setLoading(true);
     axios
       .get("https://library.softly.uz/api/books", {
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-        },
+        headers: { Authorization: `Bearer ${state.token}` },
       })
-      .then((response) => {
-        setBooks(response.data.items);
-      })
-      .catch(() => {
-        message.error("Kitoblarni yuklashda xatolik");
-      })
-      .finally(() => {});
+      .then((response) => setBooks(response.data.items))
+      .catch(() => message.error("Kitoblarni yuklashda xatolik"));
   };
 
   useEffect(() => {
     fetchUsers();
   }, [currentPage]);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const handleAfterAdd = (newItem) => {
-    if (!books.find((b) => b.id === newItem.book.id)) {
-      setBooks((prevBooks) => [...prevBooks, newItem.book]);
-    }
-  };
-
-  if (!kitoblarim) {
-    return <Spin />;
-  }
-  if (loading) {
-    return (
-      <div>
-        <Spin />
-      </div>
-    );
-  }
+  if (!kitoblarim || loading) return <Spin />;
 
   return (
     <div>
       <DrawerPage
-        name="kitoblarim"
-        qoshish={"Kitob qo'shish"}
-        apiName={"stocks"}
-        onAdd={handleAfterAdd}
+        name="Kitoblarim"
+        qoshish="Kitob qo'shish"
+        apiName="stocks"
         editItem={selectUser}
         fetchUsers={fetchUsers}
+        isOpen={isDrawerOpen}
+        setIsOpen={setIsDrawerOpen}
       >
-        <div className="flex gap-2 w-full overflow-x-hidden">
-          <Form.Item
-            label="Kitob"
-            name="bookId"
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-            className="w-[250px]"
-          >
-            <Select
-              options={books.map((item) => ({
-                value: item.id,
-                label: item.name,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item
-            label="Kitob"
-            name="bookId"
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-            className="w-24"
-          >
-            <Select
-              options={books.map((item) => ({
-                value: item.id,
-                label: item.id,
-              }))}
-            />
-          </Form.Item>
-        </div>
+        <Form.Item label="Kitob ID" name="bookId" rules={[{ required: true }]}>
+          <Select
+            options={books.map((b) => ({ value: b.id, label: b.name }))}
+          />
+        </Form.Item>
         <Button type="primary" htmlType="submit">
-          Qo'shish
+          qo'shish
         </Button>
       </DrawerPage>
 
@@ -134,29 +66,28 @@ function Kitoblarim() {
           {
             title: "ID",
             dataIndex: "id",
-            render: (id, render) => {
-              return (
-                <div
-                  onClick={() => {
-                    setSelectedUser(render);
-                  }}
-                  className="text-blue-600 cursor-pointer"
-                >
-                  {id}
-                </div>
-              );
-            },
+            render: (id, record) => (
+              <span
+                className="text-blue-600 cursor-pointer"
+                onClick={() => {
+                  setSelectedUser(record);
+                  setIsDrawerOpen(true);
+                }}
+              >
+                {id}
+              </span>
+            ),
           },
           {
             title: "Kitob",
             dataIndex: "book",
-            render: (value) => <p>{value.name}</p>,
+            render: (book) => <p>{book?.name}</p>,
           },
           {
             title: "Bandlik",
             dataIndex: "busy",
-            render: (value) =>
-              value ? (
+            render: (busy) =>
+              busy ? (
                 <CloseCircleTwoTone twoToneColor="#eb2f96" />
               ) : (
                 <CheckCircleTwoTone twoToneColor="#52c41a" />
@@ -166,23 +97,21 @@ function Kitoblarim() {
             title: "Yasalgan",
             dataIndex: "createdAt",
             render: (value) =>
-              new Date(value).toLocaleString("ru", {
+              new Date(value).toLocaleDateString("ru-RU", {
+                year: "numeric",
                 month: "short",
                 day: "2-digit",
-                year: "numeric",
               }),
           },
         ]}
         dataSource={kitoblarim.items}
         rowKey="id"
         pagination={{
-          pageSize: pageSize,
+          pageSize,
           current: currentPage,
           total: kitoblarim.totalCount,
         }}
-        onChange={(pagination) => {
-          setCurrentPage(pagination.current);
-        }}
+        onChange={(pagination) => setCurrentPage(pagination.current)}
       />
     </div>
   );

@@ -1,26 +1,54 @@
-import { Form, Input, message, Switch, Table } from "antd";
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  message,
+  Select,
+  Switch,
+  Table,
+} from "antd";
+import axios from "axios";
 import { useEffect, useState } from "react";
-import api from "../api/Api";
 import useMyStore from "../store/my-store";
 import DrawerPage from "./DrawerPage";
 
 function Ijaralar() {
   const [ijaralar, setIjaralar] = useState();
+  const state = useMyStore();
+  const [stocks, setStocks] = useState([]);
 
   useEffect(() => {
-    api
-      .get("/api/rents", {
-        params: {
-          size: 20,
-          page: 1,
+    axios
+      .get("https://library.softly.uz/api/stocks", {
+        headers: {
+          Authorization: `Bearer ${state.token}`,
         },
       })
-      .then((response) => {
-        setIjaralar(response.data.items);
-        message.success("muvaffaqqiyatli");
+      .then((res) => {
+        setStocks(res.data.items);
+        console.log(res.data.items);
+
+        axios
+          .get("https://library.softly.uz/api/rents", {
+            params: { size: 20, page: 1 },
+            headers: { authorization: "Bearer " + state.token },
+          })
+          .then((response) => {
+            const rentsWithStocks = response.data.items.map((rent) => {
+              const stock = res.data.items.find((s) => s.id === rent.stockId);
+              return { ...rent, stock };
+            });
+
+            setIjaralar(rentsWithStocks);
+            message.success("muvaffaqqiyatli");
+          })
+          .catch((e) => {
+            console.log(e);
+            message.error("Xatolik");
+          });
       })
-      .catch((e) => {
-        console.log(e);
+      .catch(() => {
         message.error("Xatolik");
       });
   }, []);
@@ -32,14 +60,21 @@ function Ijaralar() {
     <div>
       <DrawerPage name={"Ijaralar"} qoshish={"ijarachi qo'shish"}>
         <Form.Item
-          label="Kitobxon"
+          label="Password"
           rules={[
             {
               required: true,
             },
           ]}
         >
-          <Input />
+          <Select options={[
+            {
+              
+            }
+          ]} />
+        </Form.Item>
+        <Form.Item>
+          <Select />
         </Form.Item>
       </DrawerPage>
       <Table
@@ -109,11 +144,19 @@ function Ijaralar() {
           },
           {
             title: "Zahira kitobi",
-            dataIndex: "id",
+            dataIndex: "stock",
+            render: (stock) => stock?.book?.name || "nomalum",
           },
           {
             title: "Yangilangan",
-            dataIndex: "id",
+            dataIndex: "createdAt",
+            render: () => {
+              return new Date().toLocaleString("ru", {
+                month: "2-digit",
+                year: "numeric",
+                day: "2-digit",
+              });
+            },
           },
         ]}
         dataSource={ijaralar}

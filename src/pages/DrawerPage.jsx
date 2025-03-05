@@ -1,6 +1,6 @@
 import { Button, Drawer, Form, message, Spin } from "antd";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useMyStore from "../store/my-store";
 
 function DrawerPage({
@@ -8,20 +8,13 @@ function DrawerPage({
   qoshish,
   apiName,
   children,
+  onAddOrUpdate,
   editItem,
-  fetchUsers,
+  isOpen,
+  setIsOpen,
 }) {
   const [loading, setLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [form] = Form.useForm();
   const state = useMyStore();
-
-  useEffect(() => {
-    if (editItem) {
-      form.setFieldsValue(editItem);
-      setIsOpen(true);
-    }
-  }, [editItem]);
 
   const handleSubmit = (values) => {
     setLoading(true);
@@ -39,8 +32,7 @@ function DrawerPage({
       .then(() => {
         message.success(editItem ? "Tahrirlandi" : "Qo'shildi");
         setIsOpen(false);
-        form.resetFields();
-        fetchUsers();
+        onAddOrUpdate();
       })
       .catch(() => message.error("Xatolik"))
       .finally(() => setLoading(false));
@@ -62,7 +54,11 @@ function DrawerPage({
           }}
           destroyOnClose
         >
-          <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          <Form
+            initialValues={editItem}
+            layout="vertical"
+            onFinish={handleSubmit}
+          >
             {children}
           </Form>
         </Drawer>
