@@ -1,166 +1,161 @@
-import {
-  Button,
-  Checkbox,
-  Form,
-  Input,
-  message,
-  Select,
-  Switch,
-  Table,
-} from "antd";
+import { Button, DatePicker, Form, message, Select, Table } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import useMyStore from "../store/my-store";
 import DrawerPage from "./DrawerPage";
 
 function Ijaralar() {
-  const [ijaralar, setIjaralar] = useState();
-  const state = useMyStore();
+  const [ijaralar, setIjaralar] = useState([]);
   const [stocks, setStocks] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  useEffect(() => {
+  const state = useMyStore();
+  const pageSize = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const fetchRents = () => {
+    axios
+      .get("https://library.softly.uz/api/rents", {
+        params: { size: pageSize, page: currentPage },
+        headers: { Authorization: `Bearer ${state.token}` },
+      })
+      .then((response) => {
+        setIjaralar(response.data.items);
+      })
+      .catch(() => message.error("Ijaralarni yuklashda xatolik"));
+  };
+
+  const fetchStocks = () => {
     axios
       .get("https://library.softly.uz/api/stocks", {
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-        },
+        headers: { Authorization: `Bearer ${state.token}` },
       })
-      .then((res) => {
-        setStocks(res.data.items);
-        console.log(res.data.items);
-
-        axios
-          .get("https://library.softly.uz/api/rents", {
-            params: { size: 20, page: 1 },
-            headers: { authorization: "Bearer " + state.token },
-          })
-          .then((response) => {
-            const rentsWithStocks = response.data.items.map((rent) => {
-              const stock = res.data.items.find((s) => s.id === rent.stockId);
-              return { ...rent, stock };
-            });
-
-            setIjaralar(rentsWithStocks);
-            message.success("muvaffaqqiyatli");
-          })
-          .catch((e) => {
-            console.log(e);
-            message.error("Xatolik");
-          });
+      .then((response) => {
+        setStocks(response.data.items);
       })
-      .catch(() => {
-        message.error("Xatolik");
-      });
-  }, []);
+      .catch(() => message.error("Zaxira kitoblarni yuklashda xatolik"));
+  };
 
-  if (!ijaralar) {
-    return <div>Loading...</div>;
-  }
+  const fetchUsers = () => {
+    axios
+      .get("https://library.softly.uz/api/users", {
+        headers: { Authorization: `Bearer ${state.token}` },
+      })
+      .then((response) => {
+        setUsers(response.data.items);
+      })
+      .catch(() => message.error("Foydalanuvchilarni yuklashda xatolik"));
+  };
+
+  useEffect(() => {
+    fetchRents();
+    fetchStocks();
+    fetchUsers();
+  }, [currentPage]);
+
   return (
     <div>
-      <DrawerPage name={"Ijaralar"} qoshish={"ijarachi qo'shish"}>
+      <DrawerPage
+        name="Ijaralar"
+        qoshish="Ijarachi qo'shish"
+        apiName="rents"
+        editItem={selectedUser}
+        fetchUsers={fetchRents} // nomi fetchUsers qoladi, lekin funksiyaning o'zi fetchRents bo'ladi
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      >
         <Form.Item
-          label="Password"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
+          label="Kitobxon"
+          name="userId"
+          rules={[{ required: true, message: "Kitobxonni tanlang!" }]}
         >
-          <Select options={[
-            {
-              
-            }
-          ]} />
+          <Select
+            showSearch
+            placeholder="Kitobxonni tanlang"
+            options={users.map((user) => ({
+              value: user.id,
+              label: `${user.firstName} ${user.lastName}`,
+            }))}
+          />
         </Form.Item>
-        <Form.Item>
-          <Select />
+
+        <Form.Item
+          label="Zaxira kitobi"
+          name="stockId"
+          rules={[{ required: true, message: "Zaxira kitobini tanlang!" }]}
+        >
+          <Select
+            showSearch
+            placeholder="Zaxira kitobini tanlang"
+            options={stocks.map((stock) => ({
+              value: stock.id,
+              label: stock.book.name,
+            }))}
+          />
         </Form.Item>
+
+        <Form.Item label="Topshirilgan sana" name="leasedAt">
+          <DatePicker />
+        </Form.Item>
+
+        <Form.Item label="Qaytarilishi kerak bo'lgan sana" name="returningDate">
+          <DatePicker />
+        </Form.Item>
+
+        <Button type="primary" htmlType="submit">
+          Saqlash
+        </Button>
       </DrawerPage>
+
       <Table
         columns={[
           {
             title: "ID",
             dataIndex: "id",
-          },
-          {
-            title: "KvID",
-            dataIndex: "customId",
-          },
-          {
-            title: "Berildi",
-            dataIndex: "leasedAt",
-            render: (value) => {
-              return new Date(value).toLocaleString("ru", {
-                month: "long",
-                day: "2-digit",
-                year: "numeric",
-              });
-            },
-          },
-          {
-            title: "Qaytadi",
-            dataIndex: "returningDate",
-            render: (value) => {
-              return new Date(value).toLocaleString("ru", {
-                month: "long",
-                day: "2-digit",
-                year: "numeric",
-              });
-            },
-          },
-          {
-            title: "Qoldi / Jami",
-            dataIndex: "createdAt",
-            render: (value) => {
-              return new Date(value).toLocaleString("ru", {
-                month: "long",
-                day: "2-digit",
-                year: "numeric",
-              });
-            },
-          },
-          {
-            title: "Qaytgan",
-            dataIndex: "returnedAt",
-            render: (checkbox) => {
-              return (
-                <Switch checked={checkbox ? true : false} onChange={checkbox} />
-              );
-            },
+            render: (id, record) => (
+              <p
+                onClick={() => {
+                  setSelectedUser(record);
+                  setIsOpen(true);
+                }}
+              >
+                {id}
+              </p>
+            ),
           },
           {
             title: "Kitobxon",
             dataIndex: "user",
-            render: (user) => {
-              return (
-                <div className="flex gap-1">
-                  <p className="font-bold">{user.id}.</p>
-                  <p className="text-blue-600">{user.firstName}</p>
-                  <p className="text-blue-600">{user.lastName}</p>
-                </div>
-              );
-            },
+            render: (user) => `${user.firstName} ${user.lastName}`,
           },
           {
-            title: "Zahira kitobi",
+            title: "Zaxira kitobi",
             dataIndex: "stock",
-            render: (stock) => stock?.book?.name || "nomalum",
+            render: (stock) => stock?.book?.name,
           },
           {
-            title: "Yangilangan",
-            dataIndex: "createdAt",
-            render: () => {
-              return new Date().toLocaleString("ru", {
-                month: "2-digit",
-                year: "numeric",
-                day: "2-digit",
-              });
-            },
+            title: "Topshirilgan sana",
+            dataIndex: "leasedAt",
+            render: (date) =>
+              date ? new Date(date).toLocaleDateString() : "Noma'lum",
+          },
+          {
+            title: "Qaytarilishi kerak",
+            dataIndex: "returningDate",
+            render: (date) =>
+              date ? new Date(date).toLocaleDateString() : "Noma'lum",
           },
         ]}
         dataSource={ijaralar}
         rowKey="id"
+        pagination={{
+          pageSize,
+          current: currentPage,
+          total: ijaralar.length,
+          onChange: (page) => setCurrentPage(page),
+        }}
       />
     </div>
   );
