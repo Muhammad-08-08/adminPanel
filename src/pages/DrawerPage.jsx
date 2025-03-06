@@ -2,6 +2,7 @@ import { Button, Drawer, Form, message, Spin } from "antd";
 import axios from "axios";
 import { useState } from "react";
 import useMyStore from "../store/my-store";
+import dayjs from "dayjs";
 
 function DrawerPage({
   name,
@@ -46,6 +47,17 @@ function DrawerPage({
       .finally(() => setLoading(false));
   };
 
+  const initialValues = editItem
+    ? {
+        userId: editItem.user?.id,
+        stockId: editItem.stock?.id,
+        leasedAt: editItem.leasedAt ? dayjs(editItem.leasedAt) : null,
+        returningDate: editItem.returningDate
+          ? dayjs(editItem.returningDate)
+          : null,
+      }
+    : {};
+
   return (
     <div>
       <div className="flex justify-between pl-2 pr-6 mb-4">
@@ -57,7 +69,7 @@ function DrawerPage({
       <Spin spinning={loading}>
         <Drawer open={isOpen} onClose={() => setIsOpen(false)} destroyOnClose>
           <Form
-            initialValues={editItem ? { bookId: editItem.book?.id } : {}}
+            initialValues={initialValues}
             layout="vertical"
             onFinish={handleSubmit}
           >
