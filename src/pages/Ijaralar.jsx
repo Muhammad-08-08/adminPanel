@@ -62,7 +62,7 @@ function Ijaralar() {
         qoshish="Ijarachi qo'shish"
         apiName="rents"
         editItem={selectedUser}
-        fetchUsers={fetchRents} // nomi fetchUsers qoladi, lekin funksiyaning o'zi fetchRents bo'ladi
+        fetchUsers={fetchRents}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
       >
